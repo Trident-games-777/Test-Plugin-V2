@@ -1,0 +1,149 @@
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+import com.github.megatronking.stringfog.plugin.StringFogMode
+import com.github.megatronking.stringfog.plugin.kg.RandomKeyGenerator
+
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.20'
+    id 'com.google.gms.google-services'
+    alias(libs.plugins.compose.compiler)
+    id 'my.code.codegenerator'
+    id 'stringfog'
+}
+
+codeGenerator {
+    mode = "debug"
+    version = 2
+    attribution_url = "domain.com/privacypolicy/"
+    referrer_key = "refKey"
+    gadid_key = "idKey"
+
+    extra_param_2 = "x2ParamKey"
+
+    custom_user_agent = "headerKey"
+
+    push_notification_api_url = "tokenRegPath.com/abc/"
+    push_notification_api_gadid_key = "tokenRegIdKey"
+    push_notification_api_fcm_token_key = "tokenRegTokenKey"
+
+    postback_api_url = "postbackPath.com/abc/"
+    postback_tracking_id_key = "postbackIdKey"
+    postback_fcm_token_key = "postbackTokenKey"
+}
+
+android {
+    namespace 'com.example.testpluginv2'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.example.testpluginv2"
+        minSdk 28
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    buildFeatures {
+        compose true
+    }
+}
+
+dependencies {
+
+    implementation libs.firebase.messaging.ktx
+    implementation(platform(libs.firebase.bom))
+    implementation libs.kotlinx.serialization.json
+    implementation libs.androidx.datastore.preferences
+    implementation libs.androidx.navigation.compose
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.activity.compose
+    implementation platform(libs.androidx.compose.bom)
+    implementation libs.androidx.ui
+    implementation libs.androidx.ui.graphics
+    implementation libs.androidx.ui.tooling.preview
+    implementation libs.androidx.material3
+    implementation libs.androidx.fragment.ktx
+    implementation(libs.androidx.datastore.preferences.v116)
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.1.0'
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'com.squareup.okio:okio:3.5.0'
+    implementation 'androidx.fragment:fragment-ktx:1.6.0'
+    implementation 'com.github.megatronking.stringfog:xor:5.0.0'
+    implementation 'androidx.datastore:datastore-preferences:1.1.1'
+}
+
+stringfog {
+    enable true
+    implementation 'com.github.megatronking.stringfog.xor.StringFogImpl'
+    kg new RandomKeyGenerator()
+    mode StringFogMode.bytes
+}
+
+afterEvaluate {
+    tasks.named("bundleRelease") {
+        finalizedBy("removeProguardMap")
+    }
+}
+
+tasks.register("removeProguardMap") {
+    doLast {
+        def generatedAabPath = "${projectDir}/release"
+        def aabFile = file("${generatedAabPath}/app-release.aab")
+
+        def zipFile = file("${generatedAabPath}/app-release.zip")
+        def savedProguardMapFile = file("${generatedAabPath}/proguard.map")
+        def tempZipFilePath = file("${generatedAabPath}/app-release-temp.zip")
+        def targetFilePath = "BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map"
+
+        aabFile.renameTo(zipFile)
+
+        ZipFile zf = new ZipFile(zipFile)
+        ZipOutputStream zos = new ZipOutputStream(tempZipFilePath.newOutputStream())
+        try {
+            def entries = zf.entries()
+            while (entries.hasMoreElements()) {
+                def entry = entries.nextElement() as ZipEntry
+                if (entry.name != targetFilePath) {
+                    zos.putNextEntry(new ZipEntry(entry.name))
+                    zf.getInputStream(entry).withCloseable { input ->
+                        input.transferTo(zos)
+                    }
+                    zos.closeEntry()
+                } else {
+                    zf.getInputStream(entry).withCloseable { input ->
+                        savedProguardMapFile.withOutputStream { fos ->
+                            input.transferTo(fos)
+                        }
+                    }
+                }
+            }
+        } finally {
+            zos.close()
+            zf.close()
+        }
+
+        zipFile.delete()
+        tempZipFilePath.renameTo(aabFile)
+    }
+}

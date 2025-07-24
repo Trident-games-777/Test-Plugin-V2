@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath libs.google.services
+        classpath 'my.code:codegenerator:1.0.0'
+        classpath 'com.github.megatronking.stringfog:gradle-plugin:5.2.0'
+        classpath 'com.github.megatronking.stringfog:xor:5.0.0'
+}
+}
+
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.compose.compiler) apply false
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "457688952187",
+    "project_id": "plin-jumpl-d385c",
+    "storage_bucket": "plin-jumpl-d385c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457688952187:android:048b0700252dfdb3f861de",
+        "android_client_info": {
+          "package_name": "com.example.testpluginv2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAf1YRiSwm4n2cshTw_evDMhfkmNfGJCX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

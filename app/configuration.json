@@ -1,0 +1,11 @@
+{
+  "configVersion": 2,
+  "dataStoreObjectFullName": "com.example.testpluginv2.composables.dataStore",
+  "dataStoreModeKeyFullName": "com.example.testpluginv2.composables.ENTER_MODE_KEY",
+  "dataStoreStubValueName": "stub",
+  "enterModeFunctionFileFullName": "com.example.testpluginv2.ui.theme.Theme",
+  "enterModeFunctionName": "enterMode",
+  "mainActivityClassName": "com.example.testpluginv2.MainActivity",
+  "showSystemBarsFunctionName": "showSystemBars",
+  "getSavedInstanceStateFunctionName": "getSavedInstanceState"
+}
